@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <title>con-date</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://use.fontawesome.com/releases/v5.3.1/js/all.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.16/jquery.timepicker.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.13.16/jquery.timepicker.min.js"></script>
+</head>
+<body class="is-flex is-justify-content-center has-background-light">
+<a href="https://gobousei.github.io/kousei/moveurl.html"></a>
+    <div class="main has-background-white is-flex-direction-column">
+        <div class="conteiner form-title">
+            <section class="hero is-info">
+                <div class="hero-body">
+                    <div class="container">
+                        <h1 class="title">
+                            con-date 献立記録・活用システム
+                        </h1>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div id="registerContent" class="conteiner form-body">
+            <form id="reserveForm" action="<?= getAppUrl() ?>" method="post">
+                <div class="field">
+                    <label class="label" for="userId">献立名<span class="tag is-danger">必須</span></label>
+                        <input class="input"  id="userId" name="user_id"  placeholder="Name"/>
+                        </span>
+                    
+                    <p class="inquiry-text"></p>
+                </div>
+                <div class="field">
+                    <label class="label" for="userName">材料<span class="tag is-danger">必須</span></label>
+                        <input class="input" type="text" id="userName" name="user_name"  />
+                        </span>
+                </div>
+                <div class="field calendar-field">
+                    <label class="label" for="">今日の日付<span class="tag is-danger">必須</span></label>
+                    <div class="control calendar-control is-flex is-flex-wrap-nowrap">
+                        <div><input class="input" type="date" id="calendarDateFrom" name="calendar_date_from" />
+                            <input class="timepicker input" type="text" name="calendar_time_from" id="calendarTimeFrom"
+                                data-time-format="H:i">
+                        </div>
+                        <label class="label" for="">所要時間<span class="tag is-danger">必須</span></label>
+                        <div>
+                            <input class="input" type="text" name="calendar_time_to" id="calendarTimeTo" />
+                        </div>
+                    </div>
+                </div>
+                <div class="">
+                    <label class="label" for="comment">レシピのurl</label>
+                    <div class="control">
+                        <input class="input" type="text" name="url" id="url" />
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="comment">感想など</label>
+                    <div class="control">
+                        <input class="textarea" type="text" name="comments" id="comment" />
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button type="button" id="submitButton" class="submit-button button is-info">確認画面</button>
+                    </div>
+                    <div class="modal" id="confirmModal">
+                        <div class="modal-background"></div>
+                        <div class="modal-card">
+                            <header class="modal-card-head">
+                                <p class="modal-card-title">確認</p>
+                                <button type="button" class="delete cancel" aria-label="close"></button>
+                            </header>
+                            <section class="modal-card-body">
+                                <table class="table is-striped is-fullwidth">
+                                    <tbody>
+                                        <tr>
+                                            <th>献立名</th>
+                                            <td id="userIdTd"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>材料</th>
+                                            <td id="userNameTd"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>今日の日付</th>
+                                            <td id="startDateTd"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>所要時間</th>
+                                            <td id="endDateTd"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>url</th>
+                                            <td id="urlTd"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>感想・手順など</th>
+                                            <td id="commentTd"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+                            <footer class="modal-card-foot">
+                                <button type="button" id="registerButton" class="button is-success">登録</button>
+                                <button type="button" class="button cancel">キャンセル</button>
+                            </footer>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    $(function () {
+              
+        $('.timepicker').timepicker();
+        //確認画面ボタンクリック時処理
+        $('#submitButton').on('click', function () {
+            const userId = $('#userId').val();
+            const userName = $('#userName').val();
+            const calendarDateFrom = $('#calendarDateFrom').val();
+            const calendarTimeFrom = $('#calendarTimeFrom').val();
+            const calendarDateTo = $('#calendarDateTo').val();
+            const calendarTimeTo = $('#calendarTimeTo').val();
+            const url = $('#url').val();
+            const now = new Date();
+            const fullStartDate =  new Date(calendarDateFrom + ' '+ calendarTimeFrom+ ':00');
+            const fullEndDate =  new Date(calendarDateTo + ' '+ calendarTimeTo+ ':00');
+            $('#userIdTd').text(userId);
+            $('#userNameTd').text(userName);
+            $('#startDateTd').text(calendarDateFrom + ' ' + calendarTimeFrom);
+            $('#endDateTd').text(calendarTimeTo);
+            $('#urlTd').text(url);
+            $('#commentTd').html($('#comment').val().replace(/\r?\n/g, '<br />'));
+            $('#confirmModal').show();
+            console.log(comment1);
+        });
+        //確認モーダルのキャンセルボタンクリック時処理
+        $('#confirmModal .cancel').on('click', function () {
+            $('#confirmModal').hide();
+        });
+        //確認モーダルの登録ボタンクリック時処理
+        $('#registerButton').on('click', function () {
+            $('.regist-loading-wrapper').show();
+            const req = {};
+            const params = {};
+            $('#reserveForm').find('input').each(function (index, element) {
+                const key = $(element).attr('name');
+                const val = $(element).val();
+                params[key] = val;
+            });
+            req.parameters = params;
+            google.script.run.withSuccessHandler(doSubmitSuccess).doSubmitAjax(req);
+        });
+    });
+    const doSubmitSuccess = function (result) {
+        //必要な場合、成功したときの画面処理を書く
+        $('#confirmModal').hide();
+    };
+        //あとでjQueryを実装する。
+    </script>
+    <script>
+      const btn = document.querySelector('#moveurl')
+btn.addEventListener('click', function () {
+    const htmlOutput = HtmlService.createTemplateFromFile("page1").evaluate();
+  htmlOutput
+    .setTitle('con-date')
+    .setFaviconUrl('https://raw.githubusercontent.com/Gobousei/con-date/main/rice.png');
+  return htmlOutput;
+})
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 100vw;
+            min-height: 100vh;
+        }
+
+        .main {
+            margin: 20px;
+            width: 60%;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+            border-radius: 6px;
+        }
+
+        .form-body {
+            padding: 20px;
+        }
+
+        #reserveForm {
+            width: 100%;
+
+        }
+
+        .is-justify-content-center {
+            justify-content: center;
+        }
+
+        .is-flex-direction-column {
+            flex-direction: column;
+        }
+
+        .calendar-field input[type=date] {
+            width: 160px;
+            margin: 10px auto;
+        }
+
+        .calendar-field .timepicker {
+            width: 100px;
+            margin: 10px 10px 10px 0;
+        }
+
+        .form-title .hero-body {
+            padding: 1.4rem 0.8rem;
+        }
+
+        .form-title .title {
+            font-size: 1.2rem;
+        }
+
+        .form-body .field:not(:last-child) {
+            margin-bottom: 1.5rem;
+        }
+
+        .is-flex-wrap-nowrap {
+            flex-wrap: wrap;
+        }
+
+        .form-body #userId {
+            width: 60%;
+        }
+
+        .form-body .submit-button {
+            padding-left: 3em;
+            padding-right: 3em;
+        }
+
+        .calendar-control>div {
+            width: 100%;
+        }
+
+        /*レスポンシブ（スマホ）*/
+        @media screen and (max-width: 480px) {
+            body {
+                min-height: 100%;
+            }
+
+            .main {
+                width: 100%;
+            }
+
+            .form-body .form-text {
+                display: none;
+            }
+        }
+    </style>
+</body>
+
+</html>
